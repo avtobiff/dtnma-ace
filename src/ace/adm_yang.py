@@ -36,9 +36,11 @@ import pyang.context
 import pyang.repository
 import pyang.syntax
 import pyang.translators.yang
+from pyang.statements import TypeStatement
 from ace import ari_text
 from ace.ari import ARI, LiteralARI, ReferenceARI, StructType
 from ace.typing import (
+    YANG_TYPES,
     SemType, TypeUse, TypeUnion, UniformList, DiverseList,
     UniformMap, TableTemplate, TableColumn, Sequence
 )
@@ -51,7 +53,7 @@ from ace.models import (
     TypeNameList, TypeNameItem,
     MetadataList, MetadataItem, AdmRevision, Feature,
     AdmSource, AdmModule, AdmImport, ParamMixin, TypeUseMixin, AdmObjMixin,
-    Typedef, Ident, IdentBase, Const, Ctrl, Edd, Oper, Var, Sbr, Tbr
+    Leaf, Typedef, Ident, IdentBase, Const, Ctrl, Edd, Oper, Var, Sbr, Tbr
 )
 from ace.util import normalize_ident
 
@@ -64,7 +66,8 @@ AMM_MOD = 'ietf-amm'
 
 # : YANG keyword for each object type in the ADM
 KEYWORDS = {
-    Typedef: (AMM_MOD, 'typedef'),
+    Leaf: 'leaf',
+    Typedef: 'typedef',
     Ident: (AMM_MOD, 'ident'),
     Const: (AMM_MOD, 'const'),
     Ctrl: (AMM_MOD, 'ctrl'),
@@ -166,7 +169,7 @@ class TypingDecoder:
 
     def __init__(self, ari_dec: AriTextDecoder):
         self._type_handlers = {
-            (AMM_MOD, 'type'): self._handle_type,
+            'type': self._handle_type,
             (AMM_MOD, 'ulist'): self._handle_ulist,
             (AMM_MOD, 'dlist'): self._handle_dlist,
             (AMM_MOD, 'umap'): self._handle_umap,
@@ -212,8 +215,12 @@ class TypingDecoder:
         typeobj.type_text = stmt.arg
 
         ari = self._get_ari(stmt.arg)
+
         if not (
-            (isinstance(ari, LiteralARI) and ari.type_id == StructType.ARITYPE)
+            # this is a general type, not only ari
+            (isinstance(stmt, TypeStatement) and stmt.arg in YANG_TYPES)
+            # ari types
+            or (isinstance(ari, LiteralARI) and ari.type_id == StructType.ARITYPE)
             or (isinstance(ari, ReferenceARI) and ari.ident.type_id == StructType.TYPEDEF)
         ):
             raise ValueError(f'Type reference must be either ARITYPE or LITERAL, got: {stmt.arg}')
@@ -988,7 +995,7 @@ class Encoder:
 
     def _put_typeobj(self, typeobj: SemType, parent: pyang.statements.Statement) -> pyang.statements.Statement:
         if isinstance(typeobj, TypeUse):
-            type_stmt = self._add_substmt(parent, (AMM_MOD, 'type'), typeobj.type_text)
+            type_stmt = self._add_substmt(parent, 'type', typeobj.type_text)
 
             if typeobj.units is not None:
                 self._add_substmt(type_stmt, 'units', typeobj.units)

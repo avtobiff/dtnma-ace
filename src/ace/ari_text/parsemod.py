@@ -246,7 +246,7 @@ def p_objpat_sub_single(p):
 
 
 def p_typedlit_single(p):
-    'typedlit : SLASH VALSEG SLASH VALSEG'
+    'typedlit : AMM_PREFIX VALSEG'
     try:
         typ = util.get_structtype(p[2])
     except Exception as err:
@@ -255,19 +255,50 @@ def p_typedlit_single(p):
 
     # Literal value handled based on type-specific parsing
     try:
-        value = util.TYPEDLIT[typ](p[4])
+        value = util.TYPEDLIT[typ](p[2])
     except Exception as err:
         LOGGER.error('Literal %s value failure: %s', typ, err)
         raise RuntimeError(err) from err
 
     try:
         p[0] = BUILTINS_BY_ENUM[typ].convert(LiteralARI(
+            # FIXME need to populate value to validate type
+#E           sqlalchemy.exc.StatementError: (_pickle.PicklingError) Can't pickle <class 'undefined_type'>: attribute lookup undefined_type on builtins failed
+#E           [SQL: INSERT INTO typedef (module_id, position, name, norm_name, enum, if_feature_expr, description, typeobj) VALUES (?, ?, ?, ?, ?, ?, ?, ?)]
+#E           [parameters: [{'enum': 1, 'name': 'my-uint', 'description': 'uint', 'module_id': 1, 'norm_name': 'my-uint', 'typeobj': TypeUse(type_text='amm:uint', type_ari=LiteralARI(value=undefined, type_id=<StructType.UINT: 5>), base=None, units=None, constraints=[]), 'if_feature_expr': None, 'position': None}]]
+            #type_id=typ,
+            #value=typ
             type_id=typ,
-            value=value
+            value=typ
         ))
     except Exception as err:
         LOGGER.error('Literal type mismatch: %s', err)
         raise RuntimeError(err) from err
+
+
+#def p_typedlit_single(p):
+#    'typedlit : SLASH VALSEG SLASH VALSEG'
+#    try:
+#        typ = util.get_structtype(p[2])
+#    except Exception as err:
+#        LOGGER.error('Literal value type invalid: %s', err)
+#        raise RuntimeError(err) from err
+#
+#    # Literal value handled based on type-specific parsing
+#    try:
+#        value = util.TYPEDLIT[typ](p[4])
+#    except Exception as err:
+#        LOGGER.error('Literal %s value failure: %s', typ, err)
+#        raise RuntimeError(err) from err
+#
+#    try:
+#        p[0] = BUILTINS_BY_ENUM[typ].convert(LiteralARI(
+#            type_id=typ,
+#            value=value
+#        ))
+#    except Exception as err:
+#        LOGGER.error('Literal type mismatch: %s', err)
+#        raise RuntimeError(err) from err
 
 
 def p_ssp_objref_noparams(p):

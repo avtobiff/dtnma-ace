@@ -59,6 +59,12 @@ def pyang_plugin_init():
     # Extension argument types
     syntax.add_arg_type('ARI', AriChecker())
 
+    for ext in NATIVE_STMTS:
+        name = ext.keyword
+        grammar.add_stmt(name, (ext.typename, ext.subs))
+        if ext.subs:
+            statements.add_keyword_with_children(name)
+
     for ext in MODULE_EXTENSIONS:
         name = (MODULE_NAME, ext.keyword)
         grammar.add_stmt(name, (ext.typename, ext.subs))
@@ -119,7 +125,7 @@ def pyang_plugin_init():
         'grammar',
         # Statements with 'ARI' type above
         [
-            (MODULE_NAME, 'type'),
+            'type',
             (MODULE_NAME, 'base'),
             (MODULE_NAME, 'init-value'),
             (MODULE_NAME, 'action'),
@@ -220,7 +226,8 @@ OBJ_SUBS_PRE = [
 ''' Substatements at the front of object definitions. '''
 
 AMM_OBJ_NAMES = (
-    (MODULE_NAME, 'typedef'),
+    'leaf',
+    'typedef',
     (MODULE_NAME, 'ident'),
     (MODULE_NAME, 'const'),
     (MODULE_NAME, 'edd'),
@@ -238,7 +245,7 @@ AMM_ORDERED_NAMES = (
     (MODULE_NAME, 'operand'),
     (MODULE_NAME, 'result'),
     # semantic type statements
-    (MODULE_NAME, 'type'),
+    'type',
     (MODULE_NAME, 'ulist'),
     (MODULE_NAME, 'dlist'),
     (MODULE_NAME, 'umap'),
@@ -287,7 +294,7 @@ def type_use(parent: str) -> List:
     '''
     opts = [
         [('uses', '1')],
-        [((MODULE_NAME, 'type'), '1')],
+        [('type', '1')],
         [((MODULE_NAME, 'ulist'), '1')],
         [((MODULE_NAME, 'dlist'), '1')],
         [((MODULE_NAME, 'umap'), '1')],
@@ -301,6 +308,40 @@ def type_use(parent: str) -> List:
     return [
         ('$choice', opts),
     ]
+
+
+NATIVE_STMTS = (
+    Ext('leaf', 'identifier',
+        subs=(
+            OBJ_SUBS_PRE
+            + [('type', '1')]
+        ),
+       ),
+
+    Ext('typedef', 'identifier',
+        subs=(
+            OBJ_SUBS_PRE
+            + type_use('typedef')
+        ),
+       ),
+
+    Ext('type', 'string',
+        subs=[
+            ('$interleave', [
+                ('units', '?'),
+                ((MODULE_NAME, 'display-hint'), '?'),
+                ((MODULE_NAME, 'int-labels'), '?'),
+                ('range', '?'),
+                ('pattern', '*'),
+                ('length', '?'),
+                ((MODULE_NAME, 'cddl'), '?'),
+                ((MODULE_NAME, 'base'), '*'),
+            ]),
+            ('description', '?'),
+            ('reference', '?'),
+        ],
+       ),
+    )
 
 
 # List of extension statements defined by the module

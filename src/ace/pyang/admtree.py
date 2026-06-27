@@ -47,7 +47,8 @@ MODULE_NAME = 'ietf-amm'
 MODULE_PREFIX = 'amm'
 
 AMP_OBJ_NAMES = (
-    (MODULE_NAME, 'typedef'),
+    #(MODULE_NAME, 'typedef'),
+    'typedef',
     (MODULE_NAME, 'ident'),
     (MODULE_NAME, 'const'),
     (MODULE_NAME, 'edd'),
@@ -59,7 +60,8 @@ AMP_OBJ_NAMES = (
 )
 
 TYPED_OBJS = (
-    (MODULE_NAME, 'typedef'),
+    #(MODULE_NAME, 'typedef'),
+    'typedef',
     (MODULE_NAME, 'const'),
     (MODULE_NAME, 'edd'),
     (MODULE_NAME, 'var'),

@@ -133,13 +133,17 @@ module example-mod {
         buf.seek(0)
         return buf
 
+    # FIXME remove since ietf-amm.yang is in search path now (test/adms)
     def _filter_logs(self, output: List) -> List:
-        ''' Remove known isolated module set log message. '''
-
-        def incl(msg):
-            return msg != 'ERROR:ace.adm_yang:<text>:6: module "ietf-amm" not found in search path'
-
-        return list(filter(incl, output))
+        return output
+    #def _filter_logs(self, output: List) -> List:
+    #    ''' Remove known isolated module set log message. '''
+    #
+    #     FIXME add ietf-amm.yang to search path
+    #    def incl(msg):
+    #        return msg != 'ERROR:ace.adm_yang:<text>:6: module "ietf-amm" not found in search path'
+    #
+    #    return list(filter(incl, output))
 
 
 class TestAdmYang(BaseYang):

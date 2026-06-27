@@ -223,6 +223,10 @@ class AdmModule(Base):
     )
 
     # references a list of contained objects
+    leaf = relationship("Leaf",
+                        back_populates="module",
+                        order_by='asc(Leaf.position)',
+                        cascade="all, delete")
     typedef = relationship("Typedef",
                            back_populates="module",
                            order_by='asc(Typedef.position)',
@@ -373,6 +377,17 @@ class ParamMixin:
         )
 
 # These following classes are all proper ADM top-level object sections.
+
+
+class Leaf(Base, AdmObjMixin, TypeUseMixin):
+    __tablename__ = "leaf"
+    id = Column(Integer, primary_key=True)
+
+    @declared_attr
+    def module_id(self):
+        return Column(Integer, ForeignKey('adm_module.id'))
+
+    module = relationship("AdmModule", back_populates="leaf")
 
 
 class Typedef(Base, AdmObjMixin, TypeUseMixin):

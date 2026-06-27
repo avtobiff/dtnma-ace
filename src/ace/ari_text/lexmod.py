@@ -37,6 +37,7 @@ LOGGER = logging.getLogger(__name__)
 
 # List of token names.   This is always required
 tokens = (
+    'AMM_PREFIX',
     'ARI_PREFIX',
     'SLASH',
     'COMMA',
@@ -55,6 +56,11 @@ tokens = (
 
 # Function tokens are searched in declaration order
 # pylint: disable=invalid-name disable=missing-function-docstring
+
+
+def t_AMM_PREFIX(tok):
+    r'amm:'
+    return tok
 
 
 def t_ARI_PREFIX(tok):

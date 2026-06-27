@@ -62,6 +62,9 @@ class TypeSeq:
 
     def __call__(self, text):
         ''' Apply matchers in order, first one wins and parses. '''
+        # FIXME hack
+        if text == "uint":
+            return StructType.UINT
         for obj in self._matchers:
             found = obj.regex.fullmatch(text)
             if found is not None:
