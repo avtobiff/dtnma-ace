@@ -512,16 +512,24 @@ ANY = {
 }
 ''' YANG native types. '''
 YANG = {
+    # native types
     'empty': NullType(),
-    'bool': BoolType(),
+    'boolean': BoolType(),
     'uint8': NumericType(StructType.BYTE, 0, 2 ** 8 - 1),
     'int32': NumericType(StructType.INT, -2 ** 31, 2 ** 31 - 1),
     'uint32': NumericType(StructType.UINT, 0, 2 ** 32 - 1),
-    'amm:uint': NumericType(StructType.UINT, 0, 2 ** 32 - 1),
     'int64': NumericType(StructType.VAST, -2 ** 63, 2 ** 63 - 1),
     'uint64': NumericType(StructType.UVAST, 0, 2 ** 64 - 1),
     'string': StringType(StructType.TEXTSTR),
     'binary': StringType(StructType.BYTESTR),
+    # derived types
+    'amm:null': NullType(),
+    'amm:bool': BoolType(),
+    'amm:byte': NumericType(StructType.BYTE, 0, 2 ** 8 - 1),
+    'amm:int': NumericType(StructType.INT, -2 ** 31, 2 ** 31 - 1),
+    'amm:uint': NumericType(StructType.UINT, 0, 2 ** 32 - 1),
+    'amm:vast': NumericType(StructType.VAST, -2 ** 63, 2 ** 63 - 1),
+    'amm:uvast': NumericType(StructType.UVAST, 0, 2 ** 64 - 1),
     # from: numpy.finfo(numpy.float32).max
     'amm:real32':
         NumericType(StructType.REAL32,
@@ -532,6 +540,8 @@ YANG = {
         NumericType(StructType.REAL64,
                     struct.unpack('!d', bytes.fromhex('ffefffffffffffff'))[0],
                     struct.unpack('!d', bytes.fromhex('7fefffffffffffff'))[0]),
+    'amm:textstr': StringType(StructType.TEXTSTR),
+    'amm:bytestr': StringType(StructType.BYTESTR),
 }
 YANG_TYPES = [typ for typ in YANG.keys()]
 ''' Special reserved types and behavior. '''

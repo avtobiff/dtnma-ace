@@ -63,8 +63,25 @@ class TypeSeq:
     def __call__(self, text):
         ''' Apply matchers in order, first one wins and parses. '''
         # FIXME hack
-        if text == "uint":
+        if text == "byte":
+            return StructType.BYTE
+        elif text == "int":
+            return StructType.INT
+        elif text == "uint":
             return StructType.UINT
+        elif text == "vast":
+            return StructType.VAST
+        elif text == "uvast":
+            return StructType.UVAST
+        elif text == "real32":
+            return StructType.REAL32
+        elif text == "real64":
+            return StructType.REAL64
+        elif text == "textstr":
+            return StructType.TEXTSTR
+        elif text == "bytestr":
+            return StructType.BYTESTR
+
         for obj in self._matchers:
             found = obj.regex.fullmatch(text)
             if found is not None:
