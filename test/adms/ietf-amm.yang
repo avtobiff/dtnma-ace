@@ -339,5 +339,71 @@ module ietf-amm {
       "Semantic type for a union of other types in substatements.";
   }
 
+  /* Typedefs */
+
+  typedef null {
+    amm:enum 0;
+    type empty;
+    description "NULL";
+  }
+
+  typedef bool {
+    amm:enum 1;
+    type boolean;
+    description "BOOL";
+  }
+
+  typedef byte {
+    amm:enum 2;
+    type uint8;
+    description "BYTE";
+  }
+
+  typedef int {
+    amm:enum 3;
+    type int32;
+    description "INT";
+  }
+
+  typedef uint {
+    amm:enum 4;
+    type uint32;
+    description "UINT";
+  }
+
+  typedef vast {
+    amm:enum 5;
+    type int64;
+    description "VAST";
+  }
+
+  typedef uvast {
+    amm:enum 6;
+    type uint64;
+    description "UVAST";
+  }
+
+  extension real32 {
+    description
+      "A 32-bit IEEE-754-2019 floating point number.";
+  }
+
+  extension real64 {
+    description
+      "A 64-bit IEEE-754-2019 floating point number.";
+  }
+
+  typedef textstr {
+    amm:enum 7;
+    type string;
+    description "TEXTSTR";
+  }
+
+  typedef bytestr {
+    amm:enum 8;
+    type binary;
+    description "BYTESTR";
+  }
+
   amm:enum 0;
 }
