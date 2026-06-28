@@ -945,21 +945,20 @@ class TestAdmContents(BaseYang):
     type amm:real64;
   }
 ''',
-# FIXME
-#'''
-#  typedef my-textstr {
-#    amm:enum 1;
-#    description "textstr";
-#    type amm:textstr;
-#  }
-#''',
-#'''
-#  typedef my-bytestr {
-#    amm:enum 1;
-#    description "bytestr";
-#    type amm:bytestr;
-#  }
-#''',
+'''
+  typedef my-textstr {
+    amm:enum 1;
+    description "textstr";
+    type amm:textstr;
+  }
+''',
+'''
+  typedef my-bytestr {
+    amm:enum 1;
+    description "bytestr";
+    type amm:bytestr;
+  }
+''',
             ]
     def test_native_type(self):
         for body in self.NATIVE_TYPES:

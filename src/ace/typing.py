@@ -279,7 +279,11 @@ class StringType(BuiltInType):
         if obj.type_id is not None and obj.type_id != self.type_id:
             # something besides text string
             raise TypeError
-        if not isinstance(obj.value, self._value_cls):
+        # FIXME If it is a literal value
+        #if not isinstance(obj.value, self._value_cls):
+        #    raise TypeError
+        # HACK value was removed in ace.ari_text.parsemod for p_typedlit_single
+        if not self.VALUE_CLS[obj.value] == self._value_cls:
             raise TypeError
 
         return LiteralARI(obj.value, self.type_id)
