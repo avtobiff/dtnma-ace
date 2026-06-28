@@ -881,6 +881,112 @@ class TestAdmContents(BaseYang):
 ''', False),
     )
 
+    NATIVE_TYPES = [
+'''
+  typedef my-null {
+    amm:enum 1;
+    dsecription "my-null";
+    type empty;
+  }
+''',
+'''
+  typedef my-bool {
+    amm:enum 1;
+    dsecription "my-bool";
+    type boolean;
+  }
+''',
+'''
+  typedef my-byte {
+    amm:enum 1;
+    description "byte";
+    type amm:byte;
+  }
+''',
+'''
+  typedef my-int {
+    amm:enum 1;
+    description "int";
+    type amm:int;
+  }
+''',
+'''
+  typedef my-uint {
+    amm:enum 1;
+    description "uint";
+    type amm:uint;
+  }
+''',
+'''
+  typedef my-vast {
+    amm:enum 1;
+    description "vast";
+    type amm:vast;
+  }
+''',
+'''
+  typedef my-uvast {
+    amm:enum 1;
+    description "uvast";
+    type amm:uvast;
+  }
+''',
+'''
+  typedef my-real32 {
+    amm:enum 1;
+    description "real32";
+    type amm:real32;
+  }
+''',
+'''
+  typedef my-real64 {
+    amm:enum 1;
+    description "real64";
+    type amm:real64;
+  }
+''',
+# FIXME
+#'''
+#  typedef my-textstr {
+#    amm:enum 1;
+#    description "textstr";
+#    type amm:textstr;
+#  }
+#''',
+#'''
+#  typedef my-bytestr {
+#    amm:enum 1;
+#    description "bytestr";
+#    type amm:bytestr;
+#  }
+#''',
+            ]
+    def test_native_type(self):
+        for body in self.NATIVE_TYPES:
+            with self.subTest(body):
+                buf = self._get_mod_buf(body)
+                LOGGER.info('input:\n%s', buf.getvalue())
+                try:
+                    with (self.assertLogs(adm_yang.LOGGER,
+                                          level=logging.WARNING) as logs):
+                        adm = self._adm_dec.decode(buf)
+                except AssertionError as e:
+                    if "no logs" in str(e):
+                        pass # Expected, SUCCESS
+                    else:
+                        raise e
+
+                self.assertIsInstance(adm, models.AdmModule)
+                self._db_sess.add(adm)
+                self._db_sess.commit()
+
+                typedef = adm.typedef[0]
+
+                def action():
+                    return lookup.TypeResolver().resolve(typedef.typeobj, adm)
+
+                self.assertIsNotNone(action())
+
     def test_type_constraint(self):
         for body, valid in self.TYPE_CONSTRAINT:
             with self.subTest(body):
