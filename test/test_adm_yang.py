@@ -986,6 +986,37 @@ class TestAdmContents(BaseYang):
 
                 self.assertIsNotNone(action())
 
+    def test_leaf(self):
+        buf = self._get_mod_buf(
+'''
+  leaf my-leaf {
+    amm:enum 1;
+    description "my leaf";
+    type amm:uint;
+  }
+''')
+        LOGGER.info('input:\n%s', buf.getvalue())
+        try:
+            with (self.assertLogs(adm_yang.LOGGER,
+                                  level=logging.WARNING) as logs):
+                adm = self._adm_dec.decode(buf)
+        except AssertionError as e:
+            if "no logs" in str(e):
+                pass # Expected, SUCCESS
+            else:
+                raise e
+
+        self.assertIsInstance(adm, models.AdmModule)
+        self._db_sess.add(adm)
+        self._db_sess.commit()
+
+        leaf = adm.leaf[0]
+
+        def action():
+            return lookup.TypeResolver().resolve(leaf.typeobj, adm)
+
+        self.assertIsNotNone(action())
+
     def test_type_constraint(self):
         for body, valid in self.TYPE_CONSTRAINT:
             with self.subTest(body):

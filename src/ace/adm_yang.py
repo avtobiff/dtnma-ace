@@ -792,6 +792,7 @@ class Decoder:
             ))
 
         try:
+            self._get_section(adm.leaf, Leaf, module)
             self._get_section(adm.typedef, Typedef, module)
             self._get_section(adm.ident, Ident, module)
             self._get_section(adm.const, Const, module)
