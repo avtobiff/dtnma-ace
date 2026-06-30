@@ -343,6 +343,20 @@ module ietf-amm {
 
   /* DTNMA Literal Types */
 
+  identity undefined {
+    description
+      "undefined";
+  }
+
+  typedef undefined {
+    type identityref {
+      base amm:undefined;
+    }
+    default "amm:undefined";
+    description
+      "undefined";
+  }
+
   typedef null {
     amm:enum 0;
     type empty;
@@ -407,6 +421,99 @@ module ietf-amm {
     amm:enum 11;
     type binary;
     description "BYTESTR";
+  }
+
+  typedef lit-label {
+    type union {
+      type enumeration {
+        enum null    {  value 0; }
+        enum bool    {  value 1; }
+        enum byte    {  value 2; }
+        enum int     {  value 4; }
+        enum uint    {  value 5; }
+        enum vast    {  value 6; }
+        enum uvast   {  value 7; }
+        enum real32  {  value 8; }
+        enum real64  {  value 9; }
+        enum textstr { value 10; }
+        enum bytestr { value 11; }
+      }
+      type enumeration {
+        enum NULL    {  value 0; }
+        enum BOOL    {  value 1; }
+        enum BYTE    {  value 2; }
+        enum INT     {  value 4; }
+        enum UINT    {  value 5; }
+        enum VAST    {  value 6; }
+        enum UVAST   {  value 7; }
+        enum REAL32  {  value 8; }
+        enum REAL64  {  value 9; }
+        enum TEXTSTR { value 10; }
+        enum BYTESTR { value 11; }
+      }
+      type uint8 {
+        range "0..2 | 4..11";
+      }
+    }
+  }
+
+  typedef label {
+    amm:enum 14;
+    type lit-label;
+    description "LABEL";
+  }
+
+  typedef aritype {
+    amm:enum 16;
+    type lit-label;
+    description "ARITYPE";
+  }
+
+  /* Object types */
+
+  extension ident {
+    amm:enum -1;
+    description "IDENT";
+  }
+
+  typedef literal-notype {
+    amm:enum 255;
+    type union {
+      type amm:undefined;
+      type amm:null;
+      type amm:bool;
+      type amm:byte;
+      type amm:int;
+      type amm:uint;
+      type amm:vast;
+      type amm:uvast;
+      type amm:real32;
+      type amm:real64;
+      type amm:textstr;
+      type amm:bytestr;
+    }
+    description
+      "The literal notype type used in AM";
+  }
+
+  typedef literal-ari {
+    type string {
+      pattern "^ari:.*";
+    }
+  }
+
+  grouping am {
+    list am {
+      amm:enum 18;
+      description "AM";
+      key lit-ari;
+      leaf lit-ari;
+        type amm:literal-notype;
+      }
+      leaf ari {
+        type amm:literal-ari;
+      }
+    }
   }
 
   amm:enum 0;
