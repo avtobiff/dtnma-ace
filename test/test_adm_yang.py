@@ -133,13 +133,17 @@ module example-mod {
         buf.seek(0)
         return buf
 
+    # FIXME remove since ietf-amm.yang is in search path now (test/adms)
     def _filter_logs(self, output: List) -> List:
-        ''' Remove known isolated module set log message. '''
-
-        def incl(msg):
-            return msg != 'ERROR:ace.adm_yang:<text>:6: module "ietf-amm" not found in search path'
-
-        return list(filter(incl, output))
+        return output
+    #def _filter_logs(self, output: List) -> List:
+    #    ''' Remove known isolated module set log message. '''
+    #
+    #     FIXME add ietf-amm.yang to search path
+    #    def incl(msg):
+    #        return msg != 'ERROR:ace.adm_yang:<text>:6: module "ietf-amm" not found in search path'
+    #
+    #    return list(filter(incl, output))
 
 
 class TestAdmYang(BaseYang):
@@ -876,6 +880,142 @@ class TestAdmContents(BaseYang):
   }
 ''', False),
     )
+
+    NATIVE_TYPES = [
+'''
+  typedef my-null {
+    amm:enum 1;
+    dsecription "my-null";
+    type empty;
+  }
+''',
+'''
+  typedef my-bool {
+    amm:enum 1;
+    dsecription "my-bool";
+    type boolean;
+  }
+''',
+'''
+  typedef my-byte {
+    amm:enum 1;
+    description "byte";
+    type amm:byte;
+  }
+''',
+'''
+  typedef my-int {
+    amm:enum 1;
+    description "int";
+    type amm:int;
+  }
+''',
+'''
+  typedef my-uint {
+    amm:enum 1;
+    description "uint";
+    type amm:uint;
+  }
+''',
+'''
+  typedef my-vast {
+    amm:enum 1;
+    description "vast";
+    type amm:vast;
+  }
+''',
+'''
+  typedef my-uvast {
+    amm:enum 1;
+    description "uvast";
+    type amm:uvast;
+  }
+''',
+'''
+  typedef my-real32 {
+    amm:enum 1;
+    description "real32";
+    type amm:real32;
+  }
+''',
+'''
+  typedef my-real64 {
+    amm:enum 1;
+    description "real64";
+    type amm:real64;
+  }
+''',
+'''
+  typedef my-textstr {
+    amm:enum 1;
+    description "textstr";
+    type amm:textstr;
+  }
+''',
+'''
+  typedef my-bytestr {
+    amm:enum 1;
+    description "bytestr";
+    type amm:bytestr;
+  }
+''',
+            ]
+    def test_native_type(self):
+        for body in self.NATIVE_TYPES:
+            with self.subTest(body):
+                buf = self._get_mod_buf(body)
+                LOGGER.info('input:\n%s', buf.getvalue())
+                try:
+                    with (self.assertLogs(adm_yang.LOGGER,
+                                          level=logging.WARNING) as logs):
+                        adm = self._adm_dec.decode(buf)
+                except AssertionError as e:
+                    if "no logs" in str(e):
+                        pass # Expected, SUCCESS
+                    else:
+                        raise e
+
+                self.assertIsInstance(adm, models.AdmModule)
+                self._db_sess.add(adm)
+                self._db_sess.commit()
+
+                typedef = adm.typedef[0]
+
+                def action():
+                    return lookup.TypeResolver().resolve(typedef.typeobj, adm)
+
+                self.assertIsNotNone(action())
+
+    def test_leaf(self):
+        buf = self._get_mod_buf(
+'''
+  leaf my-leaf {
+    amm:enum 1;
+    description "my leaf";
+    type amm:uint;
+  }
+''')
+        LOGGER.info('input:\n%s', buf.getvalue())
+        try:
+            with (self.assertLogs(adm_yang.LOGGER,
+                                  level=logging.WARNING) as logs):
+                adm = self._adm_dec.decode(buf)
+        except AssertionError as e:
+            if "no logs" in str(e):
+                pass # Expected, SUCCESS
+            else:
+                raise e
+
+        self.assertIsInstance(adm, models.AdmModule)
+        self._db_sess.add(adm)
+        self._db_sess.commit()
+
+        leaf = adm.leaf[0]
+
+        def action():
+            return lookup.TypeResolver().resolve(leaf.typeobj, adm)
+
+        self.assertIsNotNone(action())
 
     def test_type_constraint(self):
         for body, valid in self.TYPE_CONSTRAINT:

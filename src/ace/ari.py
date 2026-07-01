@@ -170,7 +170,7 @@ class ObjectRefPattern:
 
 @enum.unique
 class StructType(enum.IntEnum):
-    ''' The enumeration of ARI value types from Section 10.3 of ARI draft.
+    ''' The enumeration of ARI value types from Section 10.2 of ARI draft.
     '''
     LITERAL = 255
     # Primitive types

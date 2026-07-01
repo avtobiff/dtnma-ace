@@ -279,7 +279,11 @@ class StringType(BuiltInType):
         if obj.type_id is not None and obj.type_id != self.type_id:
             # something besides text string
             raise TypeError
-        if not isinstance(obj.value, self._value_cls):
+        # FIXME If it is a literal value
+        #if not isinstance(obj.value, self._value_cls):
+        #    raise TypeError
+        # HACK value was removed in ace.ari_text.parsemod for p_typedlit_single
+        if not self.VALUE_CLS[obj.value] == self._value_cls:
             raise TypeError
 
         return LiteralARI(obj.value, self.type_id)
@@ -510,8 +514,42 @@ ANY = {
     'object': AnyType(StructType.OBJECT, ReferenceARI),
     'namespace': AnyType(StructType.NAMESPACE, ReferenceARI),
 }
+''' YANG native types. '''
+YANG = {
+    # native types
+    'empty': NullType(),
+    'boolean': BoolType(),
+    'uint8': NumericType(StructType.BYTE, 0, 2 ** 8 - 1),
+    'int32': NumericType(StructType.INT, -2 ** 31, 2 ** 31 - 1),
+    'uint32': NumericType(StructType.UINT, 0, 2 ** 32 - 1),
+    'int64': NumericType(StructType.VAST, -2 ** 63, 2 ** 63 - 1),
+    'uint64': NumericType(StructType.UVAST, 0, 2 ** 64 - 1),
+    'string': StringType(StructType.TEXTSTR),
+    'binary': StringType(StructType.BYTESTR),
+    # derived types
+    'amm:null': NullType(),
+    'amm:bool': BoolType(),
+    'amm:byte': NumericType(StructType.BYTE, 0, 2 ** 8 - 1),
+    'amm:int': NumericType(StructType.INT, -2 ** 31, 2 ** 31 - 1),
+    'amm:uint': NumericType(StructType.UINT, 0, 2 ** 32 - 1),
+    'amm:vast': NumericType(StructType.VAST, -2 ** 63, 2 ** 63 - 1),
+    'amm:uvast': NumericType(StructType.UVAST, 0, 2 ** 64 - 1),
+    # from: numpy.finfo(numpy.float32).max
+    'amm:real32':
+        NumericType(StructType.REAL32,
+                    struct.unpack('!f', bytes.fromhex('ff7fffff'))[0],
+                    struct.unpack('!f', bytes.fromhex('7f7fffff'))[0]),
+    # from: numpy.finfo(numpy.float32).max
+    'amm:real64':
+        NumericType(StructType.REAL64,
+                    struct.unpack('!d', bytes.fromhex('ffefffffffffffff'))[0],
+                    struct.unpack('!d', bytes.fromhex('7fefffffffffffff'))[0]),
+    'amm:textstr': StringType(StructType.TEXTSTR),
+    'amm:bytestr': StringType(StructType.BYTESTR),
+}
+YANG_TYPES = [typ for typ in YANG.keys()]
 ''' Special reserved types and behavior. '''
-BUILTINS = LITERALS | OBJREFS | ANY
+BUILTINS = LITERALS | OBJREFS | ANY | YANG
 ''' All builtin types by name. '''
 BUILTINS_BY_ENUM = {
     typ.type_id: typ

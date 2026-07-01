@@ -35,7 +35,8 @@ from .ari import (
     UNDEFINED, is_undefined
 )
 from .typing import (
-    BUILTINS_BY_ENUM, BaseType, SemType, TypeUse, Sequence, type_walk
+    YANG, YANG_TYPES, BUILTINS_BY_ENUM,
+    BaseType, SemType, TypeUse, Sequence, type_walk
 )
 from . import models
 from .models import AdmModule, AdmObjMixin
@@ -204,7 +205,9 @@ class TypeResolver:
         basetypeobj = None
         typedef = None
         LOGGER.debug('type search for %s', obj.type_ari)
-        if isinstance(obj.type_ari, LiteralARI):
+        if obj.type_ari.value in YANG_TYPES:
+            basetypeobj = YANG[obj.type_ari.value]
+        elif isinstance(obj.type_ari, LiteralARI):
             basetypeobj = BUILTINS_BY_ENUM[obj.type_ari.value]
         elif isinstance(obj.type_ari, ReferenceARI):
             try:
