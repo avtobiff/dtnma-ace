@@ -69,7 +69,8 @@ def pyang_plugin_init():
     # allowing for non-ADM YANG modules
     grammar.add_to_stmts_rules(
         ['module', 'organization'],
-        [((MODULE_NAME, 'enum'), '?')],
+        [((MODULE_NAME, 'amm'), '?'),
+         ((MODULE_NAME, 'enum'), '?')],
     )
 
     # AMM object extensions with preferred canonicalization order
@@ -161,6 +162,10 @@ def pyang_plugin_init():
     error.add_error_code(
         'AMM_MODULE_OBJS', 1,  # critical
         "An ADM module cannot contain a statement %r named \"%s\""
+    )
+    error.add_error_code(
+        'AMM_MODULE_AMM', 1,  # critical
+        "The ADM module \"%s\" must contain an amm:amm statement"
     )
     error.add_error_code(
         'AMM_ORG_ENUM', 4,  # warning
@@ -274,6 +279,7 @@ MODULE_STMT_ALLOW = (
     'reference',
     'revision',
     'yang-version',
+    (MODULE_NAME, 'amm'),
     (MODULE_NAME, 'enum'),
 ) + AMM_OBJ_NAMES
 ''' Allowed statements at the ADM module level. '''
@@ -305,6 +311,9 @@ def type_use(parent: str) -> List:
 
 # List of extension statements defined by the module
 MODULE_EXTENSIONS = (
+    # Module top level extension to signal this is an ADM YANG module
+    Ext('amm', None),
+
     # ARI enum assignment
     Ext('enum', 'non-negative-integer'),
 
@@ -671,6 +680,11 @@ def _stmt_check_ari_import_use(ctx: context.Context, stmt: statements.Statement)
 
 def _stmt_check_module_enums(ctx: context.Context, stmt: statements.Statement):
     ''' Check the model and org enum values for an ADM module. '''
+    amm_stmt = stmt.search_one((MODULE_NAME, 'amm'))
+    if not amm_stmt:
+        error.err_add(ctx.errors, stmt.pos, 'AMM_MODULE_AMM',
+                      (stmt.arg))
+
     enum_stmt = stmt.search_one((MODULE_NAME, 'enum'))
     if not enum_stmt:
         error.err_add(ctx.errors, stmt.pos, 'AMM_MODEL_ENUM',

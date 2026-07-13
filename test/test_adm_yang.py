@@ -118,6 +118,7 @@ module example-mod {
     description
       "Initial test";
   }
+  amm:amm;
   amm:enum 1;
 '''
     NOOBJECT_MODULE_TAIL = '''\
@@ -158,6 +159,7 @@ module example-empty {
             adm = self._adm_dec.decode(buf)
         self.assertEqual(
             [
+                'ERROR:ace.adm_yang:<text>:1: The ADM module "example-empty" must contain an amm:amm statement',
                 'WARNING:ace.adm_yang:<text>:1: The ADM module "example-empty" must contain an amm:enum statement',
                 'WARNING:ace.adm_yang:<text>:1: The ADM module "example-empty" must contain an organization with an amm:enum statement',
             ],
@@ -168,6 +170,7 @@ module example-empty {
         self._db_sess.commit()
 
         self.assertEqual('example-empty', adm.module_name)
+        self.assertEqual(True, adm.amm)
         self.assertEqual('example', adm.ns_org_name)
         self.assertIsNone(adm.ns_org_enum)
         self.assertEqual('empty', adm.ns_model_name)
@@ -187,6 +190,7 @@ module example-empty {
         self.assertIsNone(adm.source.abs_file_path)
 
         self.assertEqual('example-mod', adm.module_name)
+        self.assertEqual(True, adm.amm)
         self.assertEqual('example', adm.ns_org_name)
         self.assertEqual(65535, adm.ns_org_enum)
         self.assertEqual('mod', adm.ns_model_name)
@@ -239,6 +243,7 @@ module example-empty {
         self.assertIsNone(adm.source.abs_file_path)
 
         self.assertEqual('example-mod', adm.module_name)
+        self.assertEqual(True, adm.amm)
         self.assertEqual('example', adm.ns_org_name)
         self.assertEqual(65535, adm.ns_org_enum)
         self.assertEqual('mod', adm.ns_model_name)
@@ -306,6 +311,7 @@ module example-empty {
         self.assertIsNone(adm.source.abs_file_path)
 
         self.assertEqual('example-mod', adm.module_name)
+        self.assertEqual(True, adm.amm)
         self.assertEqual('example', adm.ns_org_name)
         self.assertEqual(65535, adm.ns_org_enum)
         self.assertEqual('mod', adm.ns_model_name)
@@ -951,6 +957,7 @@ class TestAdmContents(BaseYang):
         self.assertIsNone(adm.source.abs_file_path)
 
         self.assertEqual('example-mod', adm.module_name)
+        self.assertEqual(True, adm.amm)
         self.assertEqual('example', adm.ns_org_name)
         self.assertEqual(65535, adm.ns_org_enum)
         self.assertEqual('mod', adm.ns_model_name)
@@ -1008,6 +1015,7 @@ class TestAdmContents(BaseYang):
         self.assertIsNone(adm.source.abs_file_path)
 
         self.assertEqual('example-mod', adm.module_name)
+        self.assertEqual(True, adm.amm)
         self.assertEqual('example', adm.ns_org_name)
         self.assertEqual(65535, adm.ns_org_enum)
         self.assertEqual('mod', adm.ns_model_name)
@@ -1185,6 +1193,7 @@ class TestAdmContents(BaseYang):
         self.assertIsNone(adm.source.abs_file_path)
 
         self.assertEqual('example-mod', adm.module_name)
+        self.assertEqual(True, adm.amm)
         self.assertEqual('example', adm.ns_org_name)
         self.assertEqual(65535, adm.ns_org_enum)
         self.assertEqual('mod', adm.ns_model_name)

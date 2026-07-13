@@ -733,6 +733,12 @@ class Decoder:
         adm.norm_name = normalize_ident(adm.module_name)
         self._adm = adm
 
+        # TODO Should missing amm:amm statement be a critical failure?
+        amm_stmt = module.search_one((AMM_MOD, 'amm'))
+        adm.amm = True
+        #if amm_stmt is None:
+        #    raise RuntimeError('ADM module is missing "amm:amm" statement')
+
         ns_stmt = module.search_one('namespace')
         if ns_stmt is None:
             raise RuntimeError('ADM module is missing "namespace" statement')
@@ -834,6 +840,7 @@ class Encoder:
 
         self._add_substmt(module, 'yang-version', '1.1')
         self._add_substmt(module, 'namespace', f'ari://{adm.ns_org_name}/{adm.ns_model_name}/')
+        self._add_substmt(module, (AMM_MOD, 'amm'))
 
         for item in adm.metadata_list.items:
             item_stmt = self._add_substmt(module, item.name, item.arg)
